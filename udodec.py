@@ -7,6 +7,7 @@ import neopixel
 import machine
 import time
 import gc
+import random
 print('hello world!')
 
 np = neopixel.NeoPixel(machine.Pin(39),300)
@@ -34,8 +35,9 @@ verts= [[-1,2,3],
 sequence = 'RLLRLLLLBLL'
 die_rate = 20
 pixel = []
-pixel.append([-1,0,1,1,sequence,(20,127,50),55])
-pixel.append([7,0,1,1,sequence,(20,127,50),55])
+for i in range(15):
+  pixel.append([-i+1,0,1,1,sequence,(random.randint(0,32),random.randint(0,64),random.randint(0,127)),1000])
+  pixel.append([i+1,0,1,1,sequence,(random.randint(0,127),random.randint(0,64),random.randint(0,32)),1000])
 
 edges = []
 for i in range(31):
@@ -158,6 +160,10 @@ def move(verts=verts,np=np):
     found = False
     for num in range(speed):
         if pix + 1 > 9:
+          if edge > 0:
+            np[(edge*10)-10+pix] = (0,0,0)
+          elif edge < 0:
+            np[(-edge*10)-10+(9-pix)] = (0,0,0)
           for i,x in enumerate(verts):
             if -edge in x and not found:
               #print(f'edge:{edge}',f'Vertici:{x}',f'pattern:{p}')
@@ -168,13 +174,17 @@ def move(verts=verts,np=np):
           pattern = pattern[1:] + pattern[0]
           pix = pix + 1 - 10
         else:
+          if edge > 0:
+            np[(edge*10)-10+pix] = (0,0,0)
+          elif edge < 0:
+            np[(-edge*10)-10+(9-pix)] = (0,0,0)
           pix = pix + 1
         if edge > 0:
-          np[(edge*10)-10+pix + 1] = adjustment
+          np[(edge*10)-10+pix] = adjustment
         elif edge < 0:
-          np[(-edge*10)-10+(9-pix + 1)] = adjustment
+          np[(-edge*10)-10+(9-pix)] = adjustment
     ttl -= 1
-    np.write()
+    #np.write()
     if ttl:
       newp.append([edge,pix,l,speed,pattern,adjustment,ttl])
   pixel = newp
@@ -183,6 +193,7 @@ print('right before!')
 #iterate_route('RLLRLLLLBLL',50)
 for i in range(1000):
   move()
+  np.write()
   #dim()
  
 run_once()
