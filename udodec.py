@@ -6,6 +6,7 @@
 import neopixel
 import machine
 import time
+import gc
 print('hello world!')
 
 np = neopixel.NeoPixel(machine.Pin(39),300)
@@ -31,9 +32,10 @@ verts= [[-1,2,3],
 [27,-25,26],
 [-26,-22,-30]] 
 sequence = 'RLLRLLLLBLL'
-die_rate = 10
+die_rate = 20
 pixel = []
-pixel.append([-1,0,1,3,sequence,(20,127,50),55])
+pixel.append([-1,0,1,1,sequence,(20,127,50),55])
+pixel.append([7,0,1,1,sequence,(20,127,50),55])
 
 edges = []
 for i in range(31):
@@ -126,20 +128,23 @@ def iterate_route(pattern,runs,verts=verts,np=np):
       
 def dim(die_rate=die_rate,np=np):
   for i in range(len(np)):
-    r = np[i][0] - die_rate
-    g = np[i][1] - die_rate
-    b = np[i][2] - die_rate
-    if r < 0:
-      r = 0
-    if g < 0:
-      g = 0
-    if b < 0:
-      b = 0
-    np[i] = (r,g,b)
-  np.write()
+    if np[i][0] + np[i][1] + np[i][2] > 0:
+      r = np[i][0] - die_rate
+      g = np[i][1] - die_rate
+      b = np[i][2] - die_rate
+      if r < 0:
+        r = 0
+      if g < 0:
+        g = 0
+      if b < 0:
+        b = 0
+      np[i] = (r,g,b)
+  #np.write()
     
 def move(verts=verts,np=np):
   global pixel
+  newp = None
+  gc.collect()
   newp = []
   for p in pixel:
     edge = p[0]
@@ -155,10 +160,10 @@ def move(verts=verts,np=np):
         if pix + 1 > 9:
           for i,x in enumerate(verts):
             if -edge in x and not found:
-              print(f'edge:{edge}',f'Vertici:{x}',f'pattern:{p}')
+              #print(f'edge:{edge}',f'Vertici:{x}',f'pattern:{p}')
               indie = x.index(-edge)
               edge = x[indie+pat[0]]
-              print(f'new edge:{edge} indie:{indie} pat[0]:{pat[0]}')
+              #print(f'new edge:{edge} indie:{indie} pat[0]:{pat[0]}')
               found = True
           pattern = pattern[1:] + pattern[0]
           pix = pix + 1 - 10
@@ -170,15 +175,16 @@ def move(verts=verts,np=np):
           np[(-edge*10)-10+(9-pix + 1)] = adjustment
     ttl -= 1
     np.write()
-    dim()
     if ttl:
       newp.append([edge,pix,l,speed,pattern,adjustment,ttl])
   pixel = newp
 
 print('right before!')
 #iterate_route('RLLRLLLLBLL',50)
-for i in range(100):
+for i in range(1000):
   move()
-
+  #dim()
+ 
+run_once()
 
 
