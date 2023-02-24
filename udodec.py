@@ -1,5 +1,6 @@
 
 
+
 #udodec.py
 
 
@@ -35,9 +36,12 @@ verts= [[-1,2,3],
 sequence = 'RLLRLLLLBLL'
 die_rate = 20
 pixel = []
-for i in range(15):
-  pixel.append([-i+1,0,1,1,sequence,(random.randint(0,32),random.randint(0,64),random.randint(0,127)),1000])
-  pixel.append([i+1,0,1,1,sequence,(random.randint(0,127),random.randint(0,64),random.randint(0,32)),1000])
+
+for i in range(30):
+  r = random.randint(0,127)
+  g = random.randint(0,127)
+  b = random.randint(0,127)
+  #pixel.append([i+1,0,1,1,sequence,(r,g,b),60])
 
 edges = []
 for i in range(31):
@@ -111,10 +115,6 @@ def iterate_route(pattern,runs,verts=verts,np=np):
           np[(-cp*10)-10+(9-y)] = color
         np.write()
         time.sleep(.1)
-        if cp > 0:
-          np[(cp*10)-10+y] = (0,0,0)
-        elif cp < 0:
-          np[(-cp*10)-10+(9-y)] = (0,0,0)
         np.write()
         #time.sleep(.01)
       #Pattern code
@@ -127,6 +127,7 @@ def iterate_route(pattern,runs,verts=verts,np=np):
           print(f'new cp:{cp} indie:{indie} p:{p}')
           found = True
  
+
       
 def dim(die_rate=die_rate,np=np):
   for i in range(len(np)):
@@ -160,6 +161,7 @@ def move(verts=verts,np=np):
     found = False
     for num in range(speed):
         if pix + 1 > 9:
+          ttl -= 1
           if edge > 0:
             np[(edge*10)-10+pix] = (0,0,0)
           elif edge < 0:
@@ -183,19 +185,15 @@ def move(verts=verts,np=np):
           np[(edge*10)-10+pix] = adjustment
         elif edge < 0:
           np[(-edge*10)-10+(9-pix)] = adjustment
-    ttl -= 1
     #np.write()
     if ttl:
       newp.append([edge,pix,l,speed,pattern,adjustment,ttl])
   pixel = newp
 
+
 print('right before!')
 #iterate_route('RLLRLLLLBLL',50)
-for i in range(1000):
-  move()
-  np.write()
-  #dim()
- 
-run_once()
+
+
 
 
